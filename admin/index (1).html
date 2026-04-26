@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JP Software – Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg:#09090f; --bg2:#0f0f1a; --card:#13131f; --border:#1e1e30;
+      --accent:#6c63ff; --accent2:#00d4aa; --text:#e8e8f0; --muted:#7070a0;
+      --red:#ff4d4d; --yellow:#ffd700; --green:#00d4aa;
+      --font-head:'Syne',sans-serif; --font-body:'DM Sans',sans-serif;
+    }
+    body { background:var(--bg); color:var(--text); font-family:var(--font-body); }
+
+    /* LOGIN */
+    #loginPage {
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(108,99,255,0.08) 0%, transparent 70%);
+    }
+    .login-box {
+      background:var(--card); border:1px solid var(--border); border-radius:20px;
+      padding:48px 40px; width:100%; max-width:420px; text-align:center;
+    }
+    .login-box .logo { font-family:var(--font-head); font-size:2rem; font-weight:800; margin-bottom:8px; }
+    .login-box .logo span { color:var(--accent); }
+    .login-box p { color:var(--muted); margin-bottom:32px; font-size:0.9rem; }
+    .login-box input {
+      width:100%; background:var(--bg); border:1px solid var(--border);
+      border-radius:10px; padding:13px 16px; color:var(--text);
+      font-family:var(--font-body); font-size:0.9rem; outline:none; margin-bottom:14px;
+      transition:border-color 0.2s;
+    }
+    .login-box input:focus { border-color:var(--accent); }
+    .btn { background:var(--accent); color:#fff; border:none; padding:14px 32px; border-radius:10px; font-size:0.95rem; font-weight:500; cursor:pointer; width:100%; transition:opacity 0.2s; }
+    .btn:hover { opacity:0.88; }
+    #loginErr { color:var(--red); font-size:0.85rem; margin-top:10px; min-height:18px; }
+
+    /* DASHBOARD */
+    #dashboard { display:none; min-height:100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      position:fixed; top:0; left:0; width:240px; height:100vh;
+      background:var(--bg2); border-right:1px solid var(--border);
+      display:flex; flex-direction:column; padding:28px 0; z-index:100;
+    }
+    .sidebar .logo { font-family:var(--font-head); font-size:1.4rem; font-weight:800; padding:0 28px 28px; border-bottom:1px solid var(--border); }
+    .sidebar .logo span { color:var(--accent); }
+    .sidebar nav { padding:20px 0; flex:1; }
+    .nav-item {
+      display:flex; align-items:center; gap:14px; padding:13px 28px;
+      color:var(--muted); cursor:pointer; transition:color 0.2s, background 0.2s;
+      font-size:0.92rem; border-left:3px solid transparent;
+    }
+    .nav-item:hover { color:var(--text); background:rgba(108,99,255,0.05); }
+    .nav-item.active { color:var(--accent); border-left-color:var(--accent); background:rgba(108,99,255,0.08); }
+    .nav-item i { width:18px; text-align:center; }
+    .sidebar-footer { padding:20px 28px; border-top:1px solid var(--border); }
+    .logout-btn { display:flex; align-items:center; gap:10px; color:var(--muted); cursor:pointer; font-size:0.9rem; transition:color 0.2s; }
+    .logout-btn:hover { color:var(--red); }
+
+    /* MAIN */
+    .main { margin-left:240px; padding:40px 36px; }
+    .page-header { margin-bottom:32px; }
+    .page-header h1 { font-family:var(--font-head); font-size:2rem; }
+    .page-header p { color:var(--muted); font-size:0.9rem; margin-top:4px; }
+
+    /* STATS CARDS */
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:36px; }
+    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; }
+    .stat-card .sc-label { color:var(--muted); font-size:0.82rem; margin-bottom:10px; }
+    .stat-card .sc-value { font-family:var(--font-head); font-size:2.2rem; font-weight:800; }
+    .stat-card .sc-sub { color:var(--muted); font-size:0.8rem; margin-top:4px; }
+    .sc-icon { float:right; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+
+    /* TABLE */
+    .table-box { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .table-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .table-header h3 { font-family:var(--font-head); font-size:1.1rem; }
+    .search-input { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:9px 14px; color:var(--text); font-family:var(--font-body); font-size:0.85rem; outline:none; width:220px; }
+    .search-input:focus { border-color:var(--accent); }
+    table { width:100%; border-collapse:collapse; }
+    th { padding:12px 20px; text-align:left; font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid var(--border); font-weight:500; }
+    td { padding:14px 20px; font-size:0.88rem; border-bottom:1px solid rgba(30,30,48,0.6); vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:rgba(108,99,255,0.03); }
+
+    .badge {
+      display:inline-block; padding:3px 12px; border-radius:20px; font-size:0.75rem; font-weight:500;
+    }
+    .badge-pending { background:rgba(255,215,0,0.1); color:var(--yellow); }
+    .badge-accepted { background:rgba(0,212,170,0.1); color:var(--green); }
+    .badge-rejected { background:rgba(255,77,77,0.1); color:var(--red); }
+    .badge-reviewed { background:rgba(108,99,255,0.15); color:var(--accent); }
+    .badge-unread { background:rgba(255,77,77,0.1); color:var(--red); }
+    .badge-read { background:rgba(0,212,170,0.1); color:var(--green); }
+
+    .action-btns { display:flex; gap:8px; }
+    .action-btn { width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.85rem; transition:all 0.2s; }
+    .action-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .action-btn.del:hover { border-color:var(--red); color:var(--red); }
+
+    select.status-sel { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:4px 8px; color:var(--text); font-size:0.8rem; cursor:pointer; }
+
+    .hidden { display:none !important; }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+
+    /* TOAST */
+    #toast {
+      position:fixed; bottom:28px; right:28px; background:var(--card);
+      border:1px solid var(--border); border-radius:12px; padding:14px 22px;
+      font-size:0.88rem; z-index:9999; transform:translateY(80px); opacity:0;
+      transition:all 0.3s;
+    }
+    #toast.show { transform:none; opacity:1; }
+
+    /* RESPONSIVE */
+    @media (max-width:900px) {
+      .stats-grid { grid-template-columns:1fr 1fr; }
+      .sidebar { width:200px; }
+      .main { margin-left:200px; padding:28px 20px; }
+    }
+    @media (max-width:650px) {
+      .sidebar { transform:translateX(-100%); }
+      .main { margin-left:0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="logo">JP<span>Admin</span></div>
+    <p>Sign in to the admin dashboard</p>
+    <input type="text" id="adminUser" placeholder="Username" value="admin"/>
+    <input type="password" id="adminPass" placeholder="Password" value="admin123"/>
+    <button class="btn" onclick="doLogin()">Sign In</button>
+    <p id="loginErr"></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">JP<span>Admin</span></div>
+    <nav>
+      <div class="nav-item active" onclick="showTab('overview', this)"><i class="fas fa-home"></i> Overview</div>
+      <div class="nav-item" onclick="showTab('applications', this)"><i class="fas fa-graduation-cap"></i> Applications</div>
+      <div class="nav-item" onclick="showTab('messages', this)"><i class="fas fa-envelope"></i> Messages</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="page-header">
+        <h1>Dashboard Overview</h1>
+        <p>Welcome back, Admin — here's what's happening</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="sc-icon" style="background:rgba(108,99,255,0.1);color:var(--accent);"><i class="fas fa-graduation-cap"></i></div>
+          <div class="sc-label">Total Applications</div>
+          <div class="sc-value" id="statApps">—</div>
+          <div class="sc-sub">Internship submissions</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon" style="background:rgba(255,215,0,0.1);color:var(--yellow);"><i class="fas fa-clock"></i></div>
+          <div class="sc-label">Pending Review</div>
+          <div class="sc-value" id="statPending">—</div>
+          <div class="sc-sub">Applications awaiting review</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon" style="background:rgba(0,212,170,0.1);color:var(--green);"><i class="fas fa-envelope"></i></div>
+          <div class="sc-label">Total Messages</div>
+          <div class="sc-value" id="statMsgs">—</div>
+          <div class="sc-sub">Contact form submissions</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon" style="background:rgba(255,77,77,0.1);color:var(--red);"><i class="fas fa-bell"></i></div>
+          <div class="sc-label">Unread Messages</div>
+          <div class="sc-value" id="statUnread">—</div>
+          <div class="sc-sub">Need your attention</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPLICATIONS -->
+    <div id="tab-applications" class="tab-content">
+      <div class="page-header">
+        <h1>Internship Applications</h1>
+        <p>Manage all student internship applications</p>
+      </div>
+      <div class="table-box">
+        <div class="table-header">
+          <h3>All Applications</h3>
+          <input type="text" class="search-input" placeholder="Search by name or email..." oninput="filterApps(this.value)"/>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
+                <th>Track</th><th>College</th><th>Status</th><th>Applied</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="appTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div id="tab-messages" class="tab-content">
+      <div class="page-header">
+        <h1>Contact Messages</h1>
+        <p>View and manage messages from the contact form</p>
+      </div>
+      <div class="table-box">
+        <div class="table-header">
+          <h3>All Messages</h3>
+          <input type="text" class="search-input" placeholder="Search messages..." oninput="filterMsgs(this.value)"/>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Name</th><th>Email</th><th>Subject</th>
+                <th>Message</th><th>Status</th><th>Received</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="msgTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = 'http://localhost:5000/api';
+let allApps = [], allMsgs = [];
+
+// ===== LOGIN =====
+async function doLogin() {
+  const username = document.getElementById('adminUser').value;
+  const password = document.getElementById('adminPass').value;
+  const err = document.getElementById('loginErr');
+  err.textContent = '';
+  try {
+    const res = await fetch(`${API}/admin/login`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadStats(); loadApplications(); loadMessages();
+    } else {
+      err.textContent = data.message || 'Invalid credentials';
+    }
+  } catch {
+    err.textContent = 'Cannot connect to server.';
+  }
+}
+document.getElementById('adminPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function logout() {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+// ===== TABS =====
+function showTab(name, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ===== TOAST =====
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== STATS =====
+async function loadStats() {
+  try {
+    const res = await fetch(`${API}/admin/stats`);
+    const { data } = await res.json();
+    document.getElementById('statApps').textContent = data.total_applications;
+    document.getElementById('statPending').textContent = data.pending_applications;
+    document.getElementById('statMsgs').textContent = data.total_messages;
+    document.getElementById('statUnread').textContent = data.unread_messages;
+  } catch { }
+}
+
+// ===== APPLICATIONS =====
+async function loadApplications() {
+  try {
+    const res = await fetch(`${API}/admin/applications`);
+    const { data } = await res.json();
+    allApps = data;
+    renderApps(allApps);
+  } catch { document.getElementById('appTable').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted)">Cannot load data</td></tr>'; }
+}
+
+function renderApps(data) {
+  const tb = document.getElementById('appTable');
+  if (!data.length) { tb.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">No applications yet</td></tr>'; return; }
+  tb.innerHTML = data.map((a, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${a.name}</td>
+      <td>${a.email}</td>
+      <td>${a.phone}</td>
+      <td>${a.track}</td>
+      <td>${a.college}</td>
+      <td>
+        <select class="status-sel" onchange="updateStatus(${a.id}, this.value)">
+          ${['pending','reviewed','accepted','rejected'].map(s =>
+            `<option value="${s}" ${a.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td>${a.applied_at}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn del" title="Delete" onclick="deleteApp(${a.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterApps(val) {
+  const v = val.toLowerCase();
+  renderApps(allApps.filter(a => a.name.toLowerCase().includes(v) || a.email.toLowerCase().includes(v)));
+}
+
+async function updateStatus(id, status) {
+  await fetch(`${API}/admin/applications/${id}/status`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ status })
+  });
+  toast('Status updated');
+  loadStats();
+}
+
+async function deleteApp(id) {
+  if (!confirm('Delete this application?')) return;
+  await fetch(`${API}/admin/applications/${id}`, { method: 'DELETE' });
+  toast('Application deleted');
+  loadApplications(); loadStats();
+}
+
+// ===== MESSAGES =====
+async function loadMessages() {
+  try {
+    const res = await fetch(`${API}/admin/messages`);
+    const { data } = await res.json();
+    allMsgs = data;
+    renderMsgs(allMsgs);
+  } catch { document.getElementById('msgTable').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted)">Cannot load data</td></tr>'; }
+}
+
+function renderMsgs(data) {
+  const tb = document.getElementById('msgTable');
+  if (!data.length) { tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">No messages yet</td></tr>'; return; }
+  tb.innerHTML = data.map((m, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${m.name}</td>
+      <td>${m.email}</td>
+      <td>${m.subject}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.message}">${m.message}</td>
+      <td><span class="badge ${m.is_read ? 'badge-read' : 'badge-unread'}">${m.is_read ? 'Read' : 'Unread'}</span></td>
+      <td>${m.received_at}</td>
+      <td>
+        <div class="action-btns">
+          ${!m.is_read ? `<button class="action-btn" title="Mark Read" onclick="markRead(${m.id})"><i class="fas fa-check"></i></button>` : ''}
+          <button class="action-btn del" title="Delete" onclick="deleteMsg(${m.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterMsgs(val) {
+  const v = val.toLowerCase();
+  renderMsgs(allMsgs.filter(m => m.name.toLowerCase().includes(v) || m.email.toLowerCase().includes(v) || m.subject.toLowerCase().includes(v)));
+}
+
+async function markRead(id) {
+  await fetch(`${API}/admin/messages/${id}/read`, { method: 'PUT' });
+  toast('Marked as read');
+  loadMessages(); loadStats();
+}
+
+async function deleteMsg(id) {
+  if (!confirm('Delete this message?')) return;
+  await fetch(`${API}/admin/messages/${id}`, { method: 'DELETE' });
+  toast('Message deleted');
+  loadMessages(); loadStats();
+}
+</script>
+</body>
+</html>
