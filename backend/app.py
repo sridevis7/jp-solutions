@@ -6,13 +6,13 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend to connect
+CORS(app)  
 
-# ============ DATABASE CONFIG ============
+
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'root123',   # <-- CHANGE THIS
+    'password': 'root123',   
     'database': 'jp_software_db'
 }
 
@@ -25,11 +25,11 @@ def get_db():
         print(f"DB Connection Error: {e}")
         return None
 
-# ============ INIT DATABASE ============
+
 def init_db():
     """Create database and tables if they don't exist."""
     try:
-        # Connect without database to create it first
+        
         conn = mysql.connector.connect(
             host=DB_CONFIG['host'],
             user=DB_CONFIG['user'],
@@ -39,7 +39,7 @@ def init_db():
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_CONFIG['database']}")
         cursor.execute(f"USE {DB_CONFIG['database']}")
 
-        # Internship applications table
+        
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS internship_applications (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -54,7 +54,7 @@ def init_db():
             )
         """)
 
-        # Contact messages table
+        
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS contact_messages (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,7 +67,7 @@ def init_db():
             )
         """)
 
-        # Admin users table
+        
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS admin_users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -77,7 +77,7 @@ def init_db():
             )
         """)
 
-        # Insert default admin if not exists
+        
         cursor.execute("SELECT * FROM admin_users WHERE username = 'admin'")
         if not cursor.fetchone():
             cursor.execute(
@@ -92,13 +92,13 @@ def init_db():
     except Error as e:
         print(f"❌ Database init error: {e}")
 
-# ============ ROUTES ============
+
 
 @app.route('/')
 def index():
     return jsonify({'message': 'JP Software Solution API is running!', 'status': 'ok'})
 
-# --- Internship Application ---
+
 @app.route('/api/apply', methods=['POST'])
 def apply_internship():
     data = request.get_json()
@@ -124,7 +124,7 @@ def apply_internship():
     except Error as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# --- Contact Message ---
+
 @app.route('/api/contact', methods=['POST'])
 def contact():
     data = request.get_json()
@@ -150,7 +150,7 @@ def contact():
     except Error as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# ============ ADMIN API ROUTES ============
+
 
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
@@ -271,7 +271,7 @@ def get_stats():
         'unread_messages': unread
     }})
 
-# ============ RUN ============
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
