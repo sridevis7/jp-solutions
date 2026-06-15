@@ -81,7 +81,8 @@ JP-Software-Solutions/
 
 1. Clone the repository
 
-git clone https://github.com/sridevis7/JP-Software-Solutions.git
+git clone https://sridevis7.github.io/jp-solutions/
+
 cd JP-Software-Solutions
 
 2. Install dependencies
