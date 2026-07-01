@@ -51,49 +51,6 @@ Database
 
 - MySQL
 
-📂 Project Structure
-
-JP-Software-Solutions/
-│
-
-├── app.py
-
-├── requirements.txt
-
-├── database.sql
-
-│
-├── templates/
-
-│   ├── index.html
-
-│   ├── login.html
-
-│   ├── register.html
-
-│   ├── contact.html
-
-│   ├── jobs.html
-
-│   ├── internship.html
-
-│   ├── dashboard.html
-
-│
-├── static/
-
-│   ├── css/
-
-│   │   └── style.css
-
-│   ├── js/
-
-│   │   └── script.js
-
-│   └── uploads/
-
-│
-└── README.md
 
 ⚙️ Installation & Setup
 
