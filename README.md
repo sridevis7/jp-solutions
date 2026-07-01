@@ -1,4 +1,5 @@
 JP Software Solutions Website
+
 ppt presentation: https://docs.google.com/presentation/d/11RfIe1VM65B58yMWCGw9ZiILO8e_is5H/edit?usp=drivesdk&ouid=106319805114624951960&rtpof=true&sd=true
 
 A full-stack company website built using HTML, CSS, JavaScript, Python Flask, and MySQL. This project was developed as part of my internship to showcase a professional company portal with user authentication, admin management, internship applications, and contact form functionalities.
